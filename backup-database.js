@@ -57,10 +57,21 @@ function sendToBackupServer(fileName = fileNameGzip) {
     });
 };
 
+function importDb () {
+    execute(
+        `psql -d postgresql://${username}:${password}@${hostname}/${database} < ${fileName}`
+    ).then(() => {
+        console.log('run import success');
+    }).catch(err => {
+        console.log('run import error', err);
+    });
+}
+
 function startSchedule() {
     cron.schedule('0 * * * * *', () => {
         backup();
-        sendToBackupServer();
+        importDb();
+        // sendToBackupServer();
     }, {});
 }
 
