@@ -11,6 +11,7 @@ dotenv.config();
 const hostname = process.env.DB_HOST;
 const username = process.env.DB_USER;
 const database = process.env.DB_NAME;
+const databaseImport = process.env.DB_NAME_IMPORT;
 const port = process.env.DB_PORT;
 const password = process.env.DB_PASSWORD;
 
@@ -21,14 +22,26 @@ const currentDate = Date.now();
 const fileName = `database-backup-${currentDate}.sql`;
 const fileNameGzip = `${fileName}.gz`;
 
+function importDb () {
+    console.log('fileName: ' + fileName);
+    execute(
+        `psql -d postgresql://${username}:${password}@${hostname}/${databaseImport} < ${fileName}`
+    ).then(() => {
+        console.log('run import success');
+    }).catch(err => {
+        console.log('run import error', err);
+    });
+}
+
 function backup () {
     execute(
         `PGPASSWORD=${password} pg_dump -U ${username} -h ${hostname} -p ${port} ${database} > ${fileName}        `
     ).then(async (res) => {
+        importDb();
         await compress(fileName);
-        fs.unlinkSync(fileName);
+        // sendToBackupServer();
+        // fs.unlinkSync(fileName);
         console.log("Zipped backup created");
-        console.log('res', res);
     }).catch(err => {
         console.log('run backup error', err);
     })
@@ -50,27 +63,17 @@ function sendToBackupServer(fileName = fileNameGzip) {
     )
     .then((res) => {
       console.log('result', res);
-      fs.unlinkSync(fileNameGzip);
+    //   fs.unlinkSync(fileNameGzip);
     })
     .catch(err => {
         console.error('run upload error', err);
     });
 };
 
-function importDb () {
-    execute(
-        `psql -d postgresql://${username}:${password}@${hostname}/${database} < ${fileName}`
-    ).then(() => {
-        console.log('run import success');
-    }).catch(err => {
-        console.log('run import error', err);
-    });
-}
 
 function startSchedule() {
     cron.schedule('0 * * * * *', () => {
         backup();
-        importDb();
         // sendToBackupServer();
     }, {});
 }
