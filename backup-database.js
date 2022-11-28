@@ -37,7 +37,7 @@ function backup () {
     execute(
         `PGPASSWORD=${password} pg_dump -U ${username} -h ${hostname} -p ${port} ${database} > ${fileName}        `
     ).then(async (res) => {
-        importDb();
+        // importDb();
         await compress(fileName);
         // sendToBackupServer();
         // fs.unlinkSync(fileName);
