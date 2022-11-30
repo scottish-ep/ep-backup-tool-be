@@ -17,7 +17,7 @@ const password = process.env.DB_PASSWORD;
 
 const currentDate = Date.now();
 
-const fileName = `database-backup-${currentDate}.sql`;
+const fileName = `/public/backup-database/database-backup-${currentDate}.sql`;
 const fileNameGzip = `${fileName}.gz`;
 
 function importDb () {

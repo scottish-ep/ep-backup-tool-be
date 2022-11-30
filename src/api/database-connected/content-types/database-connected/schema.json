@@ -1,0 +1,43 @@
+{
+  "kind": "collectionType",
+  "collectionName": "database_connecteds",
+  "info": {
+    "singularName": "database-connected",
+    "pluralName": "database-connecteds",
+    "displayName": "Database Connected",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "hostname": {
+      "type": "text"
+    },
+    "username": {
+      "type": "text"
+    },
+    "database": {
+      "type": "text"
+    },
+    "port": {
+      "type": "biginteger"
+    },
+    "password": {
+      "type": "text"
+    },
+    "aws_3_connecteds": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::aws-3-connected.aws-3-connected",
+      "inversedBy": "database_connecteds"
+    },
+    "cronjobs_backups": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::cronjobs-backup.cronjobs-backup",
+      "inversedBy": "database_connecteds"
+    }
+  }
+}

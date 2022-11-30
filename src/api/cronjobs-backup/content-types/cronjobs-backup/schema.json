@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "cronjobs_backups",
+  "info": {
+    "singularName": "cronjobs-backup",
+    "pluralName": "cronjobs-backups",
+    "displayName": "Cronjobs Backup"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string"
+    },
+    "time": {
+      "type": "datetime"
+    },
+    "database_connecteds": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::database-connected.database-connected",
+      "inversedBy": "cronjobs_backups"
+    }
+  }
+}
