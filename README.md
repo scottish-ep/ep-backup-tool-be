@@ -4,7 +4,6 @@ It is composed of two files - backup-database.js and index.js. All relevant meth
 
 ## In order to get the project to work, create a .env file and enter the following file .env-example
 
-
 Next step run node index.js
 
 | | | | | |
