@@ -27,16 +27,16 @@
     "password": {
       "type": "text"
     },
-    "aws_3_connecteds": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::aws-3-connected.aws-3-connected",
-      "inversedBy": "database_connecteds"
-    },
     "cronjobs_backups": {
       "type": "relation",
-      "relation": "manyToMany",
+      "relation": "oneToMany",
       "target": "api::cronjobs-backup.cronjobs-backup",
+      "mappedBy": "database_connected"
+    },
+    "aws_3_connected": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::aws-3-connected.aws-3-connected",
       "inversedBy": "database_connecteds"
     }
   }

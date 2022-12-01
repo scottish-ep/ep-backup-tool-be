@@ -4,7 +4,8 @@
   "info": {
     "singularName": "cronjobs-backup",
     "pluralName": "cronjobs-backups",
-    "displayName": "Cronjobs Backup"
+    "displayName": "Cronjobs Backup",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -17,11 +18,20 @@
     "time": {
       "type": "datetime"
     },
-    "database_connecteds": {
+    "database_connected": {
       "type": "relation",
-      "relation": "manyToMany",
+      "relation": "manyToOne",
       "target": "api::database-connected.database-connected",
       "inversedBy": "cronjobs_backups"
+    },
+    "hours": {
+      "type": "string"
+    },
+    "minutes": {
+      "type": "string"
+    },
+    "seconds": {
+      "type": "string"
     }
   }
 }

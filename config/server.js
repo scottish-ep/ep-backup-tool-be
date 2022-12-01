@@ -1,5 +1,9 @@
 const cronTasks = require("./cron-task");
 
+const testing = () => {
+  console.log('1', 1);
+}
+
 module.exports = ({ env }) => ({
   host: env('HOST', '0.0.0.0'),
   port: env.int('PORT', 1337),
@@ -23,6 +27,6 @@ module.exports = ({ env }) => ({
   debug: false,
   cron: {
     enabled: true,
-    tasks: cronTasks,
+    tasks: cronTasks
   }
 });

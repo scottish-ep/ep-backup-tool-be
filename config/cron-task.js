@@ -64,8 +64,12 @@ const backup = () => {
   })
 }
 
+const testing = (i = 0) => {
+  console.log('i', i);
+}
+
 module.exports = {  
-	'0 * * * * *': async ({ strapi }) => {
-    // backup();
+  '0 * * * * *': async ({ strapi }) => {
+    testing(2);
   }
 }

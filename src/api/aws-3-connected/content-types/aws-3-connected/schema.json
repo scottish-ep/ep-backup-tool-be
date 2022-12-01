@@ -26,9 +26,9 @@
     },
     "database_connecteds": {
       "type": "relation",
-      "relation": "manyToMany",
+      "relation": "oneToMany",
       "target": "api::database-connected.database-connected",
-      "mappedBy": "aws_3_connecteds"
+      "mappedBy": "aws_3_connected"
     }
   }
 }
