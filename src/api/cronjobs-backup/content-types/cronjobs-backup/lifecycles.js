@@ -9,123 +9,57 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const AWS = require('aws-sdk');
+const { PutObjectCommand } = require("@aws-sdk/client-s3");
+const { S3Client } = require('@aws-sdk/client-s3');
 
 function assertUrlProtocol(url) {
   // Regex to test protocol like "http://", "https://"
   return /^\w*:\/\//.test(url);
 }
 
-function sendToBackupServer(fileName = fileNameGzip) {
-  const form = new FormData();
-  form.append('file', fileName);
-  axios
-  .post(
-    "https://services.eastplayers-client.com/api/v1/files/multiple-upload",
-    form,
-    {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0ZGNjNjFiLTg0ZjgtNDhkMS04Y2MwLWI1NDY2OTg1OThiNCIsImZ1bGxfbmFtZSI6bnVsbCwiZW1haWwiOiJuYW1lbmFtZUBnbWFpbC5jb20iLCJzY2hlbWEiOiJwdWJsaWMiLCJpYXQiOjE2NTU0MDc1NTksImV4cCI6MTY4Njk0MzU1OX0.mUqlELAL8G5YrK5MA4M_WZeHbQSdbvikU7C4vgPIPaI`,
-      },
-    }
-  )
-  .then((res) => {
-    console.log('result', res);
-  //   fs.unlinkSync(fileNameGzip);
-  })
-  .catch(err => {
-      console.error('run upload error', err);
-  });
-};
+const uploadFileToS3 = async (fileStream, fileName, inforAws) => {
+  try {
+      const { AWS_REGION, AWS_BUCKET, AWS_ACCESS_KEY_ID, AWS_ACCESS_SECRET } = inforAws;
 
-const backup = (hostname, username, database, port, password, jobName) => {
+      const s3Client = new S3Client({ region: AWS_REGION, credentials: { accessKeyId: AWS_ACCESS_KEY_ID, secretAccessKey: AWS_ACCESS_SECRET } });
+      exports.s3Client = s3Client;
+      const uploadParams = {
+          Bucket: AWS_BUCKET,
+          Key: fileName,
+          Body: fileStream,
+      };
 
+      await s3Client.send(new PutObjectCommand(uploadParams));
+      return fileName
+  } catch (error) {
+      console.log('error', error);
+      return ''
+  }
+
+}
+
+const backup = (jobName, inforDatabase, inforAws) => {
   console.log('run backup');
+
+  const {hostname, username, database, port, password } = inforDatabase;
   const currentDate = Date.now();
   const pathDir = strapi.dirs.dist.root;
-  const fileName = pathDir + `/public/backup-database/${jobName}-${currentDate}.sql`;
-  const fileNameGzip = `${fileName}.gz`;
-
+  const fileName = `${jobName}-${currentDate}.sql`;
+  const filePath = pathDir + `/public/backup-database/${fileName}`;
   execute(
-      `PGPASSWORD=${password} pg_dump -U ${username} -h ${hostname} -p ${port} ${database} > ${fileName}        `
+      `PGPASSWORD=${password} pg_dump -U ${username} -h ${hostname} -p ${port} ${database} > ${filePath}        `
   ).then(async (res) => {
-      console.log('res', res);
-      const data = await strapi.services("plugin::upload.upload")
-      await compress(fileName);
+      const fileStream = fs.createReadStream(filePath);
+      uploadFileToS3(fileStream, fileName, inforAws);
   }).catch(err => {
       console.log('run backup error', err);
   })
 }
 
 module.exports = {
-  // init(config) {
-  //   const S3 = new AWS.S3({
-  //     apiVersion: '2006-03-01',
-  //     ...config,
-  //   });
-
-  //   const upload = (file, customParams = {}) =>
-  //     new Promise((resolve, reject) => {
-  //       // upload file on S3 bucket
-  //       const path = file.path ? `${file.path}/` : '';
-  //       S3.upload(
-  //         {
-  //           Key: `${path}${file.hash}${file.ext}`,
-  //           Body: file.stream || Buffer.from(file.buffer, 'binary'),
-  //           ACL: 'public-read',
-  //           ContentType: file.mime,
-  //           ...customParams,
-  //         },
-  //         (err, data) => {
-  //           if (err) {
-  //             return reject(err);
-  //           }
-
-  //           // set the bucket file url
-  //           if (assertUrlProtocol(data.Location)) {
-  //             file.url = data.Location;
-  //           } else {
-  //             // Default protocol to https protocol
-  //             file.url = `https://${data.Location}`;
-  //           }
-
-  //           resolve();
-  //         }
-  //       );
-  //     });
-
-  //   return {
-  //     uploadStream(file, customParams = {}) {
-  //       return upload(file, customParams);
-  //     },
-  //     upload(file, customParams = {}) {
-  //       return upload(file, customParams);
-  //     },
-  //     delete(file, customParams = {}) {
-  //       return new Promise((resolve, reject) => {
-  //         // delete file on S3 bucket
-  //         const path = file.path ? `${file.path}/` : '';
-  //         S3.deleteObject(
-  //           {
-  //             Key: `${path}${file.hash}${file.ext}`,
-  //             ...customParams,
-  //           },
-  //           (err, data) => {
-  //             if (err) {
-  //               return reject(err);
-  //             }
-
-  //             resolve();
-  //           }
-  //         );
-  //       });
-  //     },
-  //   };
-  // },
-  
   async afterCreate(event) {
-    console.log("result", event.result);
     const schedule = require('node-schedule');
+    console.log('event.result', event.result);
     const hours = event.result.hours;
     const minutes = event.result.minutes;
     const seconds = event.result.seconds;
@@ -135,20 +69,12 @@ module.exports = {
         where: {
           id: id,
         },
-        populate: ["database_connected"],
+        populate: ["database_connected.aws_3_connected"],
       });
       console.log('cron jobs', cronJobs);
       if (cronJobs) {
-        backup(
-          cronJobs.database_connected.hostname, 
-          cronJobs.database_connected.username, 
-          cronJobs.database_connected.database, 
-          cronJobs.database_connected.port, 
-          cronJobs.database_connected.password,
-          cronJobs.name)
-      }
+        backup(cronJobs.name ,cronJobs.database_connected, cronJobs.database_connected.aws_3_connected)
+        }
     });
   },
-  async beforeCreate(event){
-  }
 };
