@@ -1,9 +1,5 @@
 const cronTasks = require("./cron-task");
 
-const testing = () => {
-  console.log('1', 1);
-}
-
 module.exports = ({ env }) => ({
   host: env('HOST', '0.0.0.0'),
   port: env.int('PORT', 1337),
@@ -25,8 +21,12 @@ module.exports = ({ env }) => ({
     propagateCreateError: false // <- default is true, set to false
   },
   debug: false,
-  cron: {
-    enabled: true,
-    tasks: cronTasks
-  }
+  // cron: {
+  //   enabled: true,
+  //   tasks: {
+  //     ' * * * * *': async ({ strapi }) => {
+  //       testing();
+  //     }
+  //   }
+  // }
 });

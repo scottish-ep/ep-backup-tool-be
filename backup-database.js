@@ -69,7 +69,7 @@ function sendToBackupServer(fileName = fileNameGzip) {
 };
 
 function startSchedule() {
-    cron.schedule('0 * * * * *', () => {
+    cron.schedule(' * * * * *', () => {
         backup();
         // sendToBackupServer();
     }, {});
