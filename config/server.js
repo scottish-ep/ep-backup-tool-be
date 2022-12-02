@@ -21,12 +21,5 @@ module.exports = ({ env }) => ({
     propagateCreateError: false // <- default is true, set to false
   },
   debug: false,
-  // cron: {
-  //   enabled: true,
-  //   tasks: {
-  //     ' * * * * *': async ({ strapi }) => {
-  //       testing();
-  //     }
-  //   }
-  // }
+
 });
