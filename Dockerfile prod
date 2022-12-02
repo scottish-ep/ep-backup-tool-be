@@ -1,4 +1,5 @@
 ## no build module in project
+
 FROM node:16.15.0 as builder
 WORKDIR /app
 COPY ./package.json ./
@@ -7,7 +8,6 @@ COPY . .
 
 #CMD yarn build
 
-EXPOSE 1339
-
+EXPOSE 1400
 
 CMD yarn develop
