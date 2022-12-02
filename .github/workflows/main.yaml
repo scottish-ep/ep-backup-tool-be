@@ -1,0 +1,26 @@
+name: Deploy VanLang Strapi (main)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    env:
+      EP_BACKUP_ENV_MAIN: ${{ secrets.EP_BACKUP_ENV_MAIN }}
+    runs-on: [self-hosted, main]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          clean: false
+
+      - name: Inject env
+        run: echo "$EP_BACKUP_ENV_MAIN" > .env
+        shell: bash
+      - name: Run build
+        run: docker-compose -f docker-compose-main.yml build
+
+      - name: Run up
+        run: docker-compose -f docker-compose-main.yml up -d

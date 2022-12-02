@@ -1,0 +1,26 @@
+name: Deploy VanLang Strapi (staging)
+
+on:
+  push:
+    branches: [staging]
+
+jobs:
+  build:
+    env:
+      VANLANG_ENV_STAG: ${{ secrets.VANLANG_ENV_STAG }}
+    runs-on: [self-hosted, staging]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          clean: false
+
+      - name: Inject env
+        run: echo "$VANLANG_ENV_STAG" > .env
+        shell: bash
+      - name: Run build
+        run: docker-compose build
+
+      - name: Run up
+        run: docker-compose up -d
