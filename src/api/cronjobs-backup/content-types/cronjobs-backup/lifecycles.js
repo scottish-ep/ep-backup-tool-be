@@ -19,12 +19,12 @@ function assertUrlProtocol(url) {
 
 const uploadFileToS3 = async (fileStream, fileName, inforAws) => {
   try {
-      const { AWS_REGION, AWS_BUCKET, AWS_ACCESS_KEY_ID, AWS_ACCESS_SECRET } = inforAws;
+      // const { AWS_REGION, AWS_BUCKET, AWS_ACCESS_KEY_ID, AWS_ACCESS_SECRET } = inforAws;
 
-      const s3Client = new S3Client({ region: AWS_REGION, credentials: { accessKeyId: AWS_ACCESS_KEY_ID, secretAccessKey: AWS_ACCESS_SECRET } });
+      const s3Client = new S3Client({ region: 'ap-southeast-1', credentials: { accessKeyId: 'AKIA3UH6YQRZQHYSFKG6', secretAccessKey: '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' } });
       exports.s3Client = s3Client;
       const uploadParams = {
-          Bucket: AWS_BUCKET,
+          Bucket: 'testingbe',
           Key: fileName,
           Body: fileStream,
       };
@@ -73,7 +73,7 @@ module.exports = {
       });
       console.log('cron jobs', cronJobs);
       if (cronJobs) {
-        backup(cronJobs.name ,cronJobs.database_connected, cronJobs.database_connected.aws_3_connected)
+        backup(cronJobs.name ,cronJobs.database_connected, null)
         }
     });
   },
