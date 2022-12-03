@@ -13,14 +13,13 @@ services:
       - PGUSER=postgres
       - PGDATABSE=postgres
       - PGPASSWORD=postgres
-
     ports:
       - '1400:1400'
     networks:
       - ep-backup-tool-be
 
   postgres:
-    image: 'postgres:11'
+    image: 'postgres:13'
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
