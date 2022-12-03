@@ -6,7 +6,29 @@ services:
     container_name: ep-backup-be-prod
     build:
       context: .
-      dockerfile: Dockerfile prod
+      dockerfile: Dockerfile
     restart: unless-stopped
+    environment:
+      - PGHOST=postgres
+      - PGUSER=postgres
+      - PGDATABSE=postgres
+      - PGPASSWORD=postgres
+
     ports:
       - '1400:1400'
+    networks:
+      - ep-backup-tool-be
+
+  postgres:
+    image: 'postgres:11'
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - ep-backup-tool-be
+
+networks:
+  ep-backup-tool-be:
+    driver: bridge

@@ -1,9 +1,15 @@
 ## no build module in project
+
 FROM node:16.15.0 as builder
 WORKDIR /app
 COPY ./package.json ./
 RUN yarn
 COPY . .
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive \
+    apt-get install --no-install-recommends --assume-yes \
+      postgresql-client
 
 #CMD yarn build
 
